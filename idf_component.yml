@@ -1,0 +1,18 @@
+name: "beshell-drv-eth"
+version: "1.0.0"
+description: "Ethernet driver library wrapper for BeShell"
+keywords:
+  - "JavaScript"
+  - "QuickJS"
+  - "Ethernet"
+  - "Networking"
+authors:
+  - "alee201@163.com"
+homepage: "https://beshell.become.cool"
+url: "https://beshell.become.cool"
+repository: "https://github.com/become-cool/beshell-drv-eth.git"
+license: "LGPL"
+dependencies:
+  "become-cool/beshell":
+    version: ">=1.0.8"
+
