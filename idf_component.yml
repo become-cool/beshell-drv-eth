@@ -1,6 +1,6 @@
 name: "beshell-drv-eth"
 version: "1.0.0"
-description: "Ethernet driver library wrapper for BeShell"
+description: "Ethernet driver for BeShell"
 keywords:
   - "JavaScript"
   - "QuickJS"
