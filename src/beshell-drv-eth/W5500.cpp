@@ -11,7 +11,66 @@
 using namespace std ;
 
 namespace be::driver::comm {
-    
+
+    /**
+     * W5500 以太网驱动类
+     * 
+     * 用于通过 SPI 接口控制 W5500 以太网模块，实现有线网络连接。
+     * 支持动态IP（DHCP）和静态IP配置，提供网络状态事件监听。
+     * 
+     * W5500 通过 SPI 接口与 ESP32 通信。在使用 W5500 之前，
+     * 需要先通过 serial 模块初始化对应的 SPI 总线。
+     * 
+     * 示例：
+     * ```javascript
+     * import { W5500 } from "eth"
+     * import * as serial from "serial"
+     * 
+     * // 第一步：初始化 SPI 总线
+     * const spi = serial.spi2
+     * spi.setup({
+     *     miso: 19,  // MISO 引脚
+     *     mosi: 23,  // MOSI 引脚
+     *     sck: 18    // 时钟引脚
+     * })
+     * 
+     * // 第二步：创建 W5500 实例
+     * const eth = new W5500()
+     * 
+     * // 第三步：监听网络事件
+     * eth.on("connected", () => {
+     *     console.log("以太网已连接")
+     * })
+     * eth.on("ip.got", (info) => {
+     *     console.log("获取到IP:", info.ip)
+     *     console.log("子网掩码:", info.netmask)
+     *     console.log("网关:", info.gw)
+     * })
+     * eth.on("disconnected", () => {
+     *     console.log("以太网已断开")
+     * })
+     * 
+     * // 第四步：初始化 W5500
+     * eth.setup({
+     *     spi: 2,        // SPI 总线号（对应 serial.spi2）
+     *     cs: 5,         // CS 引脚
+     *     rst: 17,       // 复位引脚（可选）
+     *     intr: 16,      // 中断引脚（可选，不使用则采用轮询模式）
+     *     clock_mhz: 16, // SPI 时钟频率（MHz）
+     *     polling_ms: 0, // 轮询间隔（毫秒，0表示中断模式）
+     *     phy_addr: 1    // PHY 地址
+     * })
+     * 
+     * // 设置静态 IP（可选，默认使用 DHCP）
+     * // eth.setIP("192.168.1.100", "255.255.255.0", "192.168.1.1")
+     * ```
+     * 
+     * @component beshell-drv-eth
+     *
+     * @class W5500
+     * @module eth
+     * @extends EventEmitter
+     */
     DEFINE_NCLASS_META(W5500, EventEmitter)
 
     typedef struct {
@@ -49,6 +108,18 @@ namespace be::driver::comm {
         }
     }
 
+    /**
+     * 构造函数
+     * 
+     * 创建一个新的 W5500 实例。
+     * 
+     * @component beshell-drv-eth
+     *
+     * @module eth
+     * @class W5500
+     * @method constructor
+     * @return W5500 返回 W5500 实例
+     */
     JSValue W5500::constructor(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
         auto obj = new W5500(ctx, this_val) ;
         obj->shared() ;
@@ -176,14 +247,82 @@ namespace be::driver::comm {
     }
 
     /**
-     * {
-     *   spi 
-     *   rst=-1
-     *   intr=-1
-     *   clock_mhz=16
-     *   polling_ms=0
-     *   phy_addr=1
-     * } 
+     * 初始化 W5500 以太网模块
+     * 
+     * 配置并启动 W5500 以太网模块，建立网络连接。
+     * 
+     * **注意**：在调用此方法前，必须先通过 serial 模块初始化对应的 SPI 总线。
+     * 
+     * 配置参数说明：
+     * - spi: SPI 总线号（如 2 表示 SPI2，对应 serial.spi2）
+     * - cs: CS（片选）引脚号
+     * - rst: 复位引脚号（可选，默认 -1 表示不使用）
+     * - intr: 中断引脚号（可选，默认 -1 表示不使用轮询模式）
+     * - clock_mhz: SPI 时钟频率（MHz，默认 16）
+     * - polling_ms: 轮询间隔（毫秒，默认 0 表示使用中断模式）
+     * - phy_addr: PHY 地址（默认 1）
+     * 
+     * 示例：
+     * ```javascript
+     * import { W5500 } from "eth"
+     * import * as serial from "serial"
+     * 
+     * // 先初始化 SPI 总线
+     * const spi = serial.spi2
+     * spi.setup({
+     *     miso: 19,
+     *     mosi: 23,
+     *     sck: 18
+     * })
+     * 
+     * // 然后初始化 W5500
+     * const eth = new W5500()
+     * 
+     * // 基本配置
+     * eth.setup({
+     *     spi: 2,   // 使用 SPI2（对应 serial.spi2）
+     *     cs: 5     // CS 引脚
+     * })
+     * 
+     * // 完整配置（使用中断模式）
+     * eth.setup({
+     *     spi: 2,         // SPI 总线号（对应 serial.spi2）
+     *     cs: 5,          // CS 引脚
+     *     rst: 17,        // 复位引脚
+     *     intr: 16,       // 中断引脚（使用中断模式时设置）
+     *     clock_mhz: 16,  // SPI 时钟频率
+     *     polling_ms: 0,  // 0 表示使用中断模式
+     *     phy_addr: 1     // PHY 地址
+     * })
+     * 
+     * // 使用轮询模式（不设置 intr 或设置 polling_ms > 0）
+     * eth.setup({
+     *     spi: 2,
+     *     cs: 5,
+     *     rst: 17,
+     *     polling_ms: 100  // 每 100ms 轮询一次
+     * })
+     * ```
+     *
+     * @component beshell-drv-eth
+     *
+     * @module eth
+     * @class W5500
+     * @method setup
+     * @param config:object 配置对象
+     * @param config.spi:number SPI 总线号
+     * @param config.cs:number CS 引脚号
+     * @param config.rst:number=-1 复位引脚号（可选）
+     * @param config.intr:number=-1 中断引脚号（可选）
+     * @param config.clock_mhz:number=16 SPI 时钟频率（MHz，可选）
+     * @param config.polling_ms:number=0 轮询间隔（毫秒，可选，0 表示中断模式）
+     * @param config.phy_addr:number=1 PHY 地址（可选）
+     * @return undefined
+     * @throws SPI 以太网驱动未启用
+     * @throws 安装 GPIO 中断失败
+     * @throws SPI 以太网驱动安装失败
+     * @throws SPI 以太网驱动连接到网络接口失败
+     * @throws SPI 以太网驱动启动失败
      */
     JSValue W5500::setup(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
 #if CONFIG_ETH_SPI_ETHERNET_W5500
@@ -313,10 +452,44 @@ namespace be::driver::comm {
 #endif
     }
     
+    /**
+     * 获取 MAC 地址
+     * 
+     * 获取 W5500 以太网模块的 MAC 地址。
+     * 
+     * @component beshell-drv-eth
+     *
+     * @module eth
+     * @class W5500
+     * @method getMAC
+     * @return string 返回 MAC 地址字符串（格式：xx:xx:xx:xx:xx:xx）
+     */
     JSValue W5500::getMAC(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
         return JS_UNDEFINED ;
     }
 
+    /**
+     * 设置静态 IP 地址
+     * 
+     * 配置静态 IP 地址、子网掩码和网关。调用此方法会停止 DHCP 客户端。
+     * 
+     * 示例：
+     * ```javascript
+     * // 设置静态 IP
+     * eth.setIP("192.168.1.100", "255.255.255.0", "192.168.1.1")
+     * ```
+     *
+     * @component beshell-drv-eth
+     *
+     * @module eth
+     * @class W5500
+     * @method setIP
+     * @param ip:string IP 地址（如 "192.168.1.100"）
+     * @param netmask:string 子网掩码（如 "255.255.255.0"）
+     * @param gw:string 网关地址（如 "192.168.1.1"）
+     * @return undefined
+     * @throws esp_netif_set_ip_info() 失败
+     */
     JSValue W5500::setIP(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) {
         ASSERT_ARGC(3)
         THIS_NCLASS(W5500, that)

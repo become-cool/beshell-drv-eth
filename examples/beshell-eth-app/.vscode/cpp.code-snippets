@@ -1,0 +1,47 @@
+{
+    "BeShell Native Module": {
+        "prefix": "beshell-module",
+        "description": "Create a BeShell native module",
+        "body": [
+            "#include <beshell/NativeModule.hpp>",
+            "",
+            "using namespace be ;",
+            "",
+            "class ${1:MyModule} : public NativeModule {",
+            "public:",
+            "    ${1:MyModule}(JSContext * ctx, const char * name)",
+            "        : NativeModule(ctx, name, 0) {",
+            "        ",
+            "    }",
+            "",
+            "    static void use(BeShell * beshell) {",
+            "        beshell->use<${1:MyModule}>() ;",
+            "    }",
+            "",
+            "    void exports(JSContext *ctx) {",
+            "        $0",
+            "    }",
+            "} ;",
+            ""
+        ]
+    },
+    "W5500 Setup": {
+        "prefix": "w5500-setup",
+        "description": "Initialize W5500 Ethernet",
+        "body": [
+            "import { W5500 } from \"w5500\"",
+            "",
+            "let eth = new W5500()",
+            "",
+            "eth.on(\"ip.got\", (info) => {",
+            "    console.log(\"IP:\", info.ip)",
+            "})",
+            "",
+            "eth.setup({",
+            "    spi: ${1:2},",
+            "    cs: ${2:5},",
+            "    clock_mhz: 16",
+            "})"
+        ]
+    }
+}

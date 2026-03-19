@@ -9,6 +9,18 @@
 
 namespace be::driver::comm {
 
+    /**
+     * W5500 以太网驱动类
+     * 
+     * 用于通过 SPI 接口控制 W5500 以太网模块，实现有线网络连接。
+     * 支持动态IP（DHCP）和静态IP配置，提供网络状态事件监听。
+     * 
+     * @component beshell-drv-eth
+     *
+     * @class W5500
+     * @module eth
+     * @extends EventEmitter
+     */
     class W5500: public be::EventEmitter {
         DECLARE_NCLASS_META
 
