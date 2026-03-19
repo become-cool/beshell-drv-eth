@@ -310,13 +310,15 @@ namespace be::driver::comm {
      * @class W5500
      * @method setup
      * @param config:object 配置对象
-     * @param config.spi:number SPI 总线号
-     * @param config.cs:number CS 引脚号
-     * @param config.rst:number=-1 复位引脚号（可选）
-     * @param config.intr:number=-1 中断引脚号（可选）
-     * @param config.clock_mhz:number=16 SPI 时钟频率（MHz，可选）
-     * @param config.polling_ms:number=0 轮询间隔（毫秒，可选，0 表示中断模式）
-     * @param config.phy_addr:number=1 PHY 地址（可选）
+     *     {
+     *         spi: number,           // SPI 总线号
+     *         cs: number,            // CS 引脚号
+     *         rst?: number,          // 复位引脚号，默认 -1
+     *         intr?: number,         // 中断引脚号，默认 -1
+     *         clock_mhz?: number,    // SPI 时钟频率（MHz），默认 16
+     *         polling_ms?: number,   // 轮询间隔（毫秒），默认 0，0 表示中断模式
+     *         phy_addr?: number      // PHY 地址，默认 1
+     *     }
      * @return undefined
      * @throws SPI 以太网驱动未启用
      * @throws 安装 GPIO 中断失败
