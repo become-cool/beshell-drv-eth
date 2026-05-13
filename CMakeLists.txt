@@ -2,16 +2,16 @@ cmake_minimum_required(VERSION 3.24)
 
 
 # 源码目录
-file(GLOB_RECURSE src_beshell_drv_eth
-        src/beshell-drv-eth/*.c
-        src/beshell-drv-eth/*.cpp
+file(GLOB_RECURSE src_beshell_component
+        src/beshell/drv/eth/*.c
+        src/beshell/drv/eth/*.cpp
     )
 
 
 
 idf_component_register(
         SRCS
-            ${src_beshell_drv_eth}
+            ${src_beshell_component}
         INCLUDE_DIRS 
             ./src
         PRIV_REQUIRES
@@ -20,7 +20,7 @@ idf_component_register(
             esp_netif
 )
 
-target_include_directories(${COMPONENT_LIB} PRIVATE src/beshell-drv-eth)
+target_include_directories(${COMPONENT_LIB} PRIVATE src/beshell/drv/eth)
 
 set(CMAKE_CXX_STANDARD 11)
 
