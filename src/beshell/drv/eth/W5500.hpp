@@ -20,6 +20,7 @@ namespace be::driver::comm {
      * @class W5500
      * @module eth
      * @extends EventEmitter
+     * @ignore
      */
     class W5500: public be::EventEmitter {
         DECLARE_NCLASS_META
