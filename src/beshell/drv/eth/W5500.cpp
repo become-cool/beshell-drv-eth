@@ -13,6 +13,20 @@ using namespace std ;
 namespace be::driver::comm {
 
     /**
+     * 以太网（Ethernet）驱动模块
+     *
+     * 提供以太网芯片的驱动类，通过 SPI 等接口将 ESP32 接入有线网络。
+     *
+     * 目前提供的驱动类：
+     * - [W5500](W5500.html) - WIZnet W5500 SPI 以太网芯片
+     *
+     * 该模块会持续增加其他以太网 IC 的驱动类。
+     *
+     * @module eth
+     * @component beshell-drv-eth
+     */
+
+    /**
      * W5500 以太网驱动类
      * 
      * 用于通过 SPI 接口控制 W5500 以太网模块，实现有线网络连接。
